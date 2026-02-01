@@ -3,7 +3,6 @@
 ![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
 ![PHP](https://img.shields.io/badge/PHP-8.2+-777BB4?style=for-the-badge&logo=php&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![License](https://img.shields.io/badge/License-Proprietary-red?style=for-the-badge)
 
 **RJ Site Updater** is a centralized management system based on Laravel designed for software version control, changelog distribution, and plugin sales. It simplifies the process of pushing updates to client sites and managing a marketplace for extensions.
 
