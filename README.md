@@ -125,11 +125,20 @@ Follow these steps to set up the project locally:
 
 ---
 
+## 🔐 NOTE
+
+**Do this if you receive a 403 Access denied error!**
+
+* Bootstrap/cache | Permissions 775/777 
+* Storage | Permissions 775/777 
+
 ## 🌐 API Usage
 
 Client applications can check for updates using the following endpoint:
 
 **Endpoint:** `POST /api/v1/check`
+
+
 
 **Parameters:**
 * `api_key` (string)
@@ -156,3 +165,5 @@ Developer: Ruhid Javadov
 
 🛡 License
 This project is intended for personal use. All rights reserved. Copyright © 2026 RJ Site Updater.
+
+
