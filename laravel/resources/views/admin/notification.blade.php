@@ -1,137 +1,105 @@
-<?php
+@extends('admin.layout')
 
-namespace App\Http\Controllers;
+@section('content')
+<div class="max-w-6xl mx-auto">
 
-use Illuminate\Http\Request;
-use App\Models\Update;
-use App\Models\Plugin;
-use App\Models\SiteSetting;
-use App\Models\Notification; // YENİ: Bildiriş modeli
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Bildiriş Mərkəzi</h1>
+            <p class="text-sm text-gray-500">Müştərilərə anlıq mesajlar göndərin.</p>
+        </div>
+    </div>
 
-class ApiController extends Controller
-{
-    /**
-     * Əsas Sistem Versiyasını Yoxla
-     * Endpoint: POST /api/v1/check
-     */
-    public function checkUpdate(Request $request)
-    {
-        $clientVersion = $request->input('version');
-        $apiKey = $request->input('api_key');
-        // $domain = $request->input('domain'); // Lazım olarsa istifadə edilə bilər
+    @if(session('success'))
+        <div class="mb-6 bg-green-100 border border-green-200 text-green-700 px-4 py-3 rounded relative">
+            <i class="fa-solid fa-check mr-2"></i> {{ session('success') }}
+        </div>
+    @endif
 
-        // 1. API Key Yoxlanışı (Dinamik)
-        $settings = SiteSetting::first();
-        // Bazada api_key yoxdursa default açarı yoxlayırıq
-        $systemApiKey = $settings->api_key ?? 'rj_live_982348729384729384';
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-        if($apiKey !== $systemApiKey) {
-            return response()->json([
-                'success' => false,
-                'message' => 'API Key yanlışdır'
-            ], 403);
-        }
+        <!-- SOL: FORM -->
+        <div class="lg:col-span-1 space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden sticky top-6">
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50 flex items-center gap-2">
+                    <div class="bg-orange-100 p-1.5 rounded text-orange-600">
+                        <i class="fa-solid fa-bullhorn text-sm"></i>
+                    </div>
+                    <h3 class="font-semibold text-gray-800">Yeni Bildiriş</h3>
+                </div>
 
-        // 2. YENİ: Aktiv Bildirişi Tap (Ən sonuncu)
-        // Admin paneldən "Bildiriş Göndər" bölməsindən yazılan mesajlar
-        $activeNotification = Notification::where('is_active', true)
-                                ->latest()
-                                ->first();
+                <form action="{{ route('admin.notification.store') }}" method="POST" class="p-5 space-y-4">
+                    @csrf
 
-        $notificationData = null;
-        if ($activeNotification) {
-            // Əgər bildiriş konkret bir versiya üçün deyilsə və ya versiya uyğun gəlirsə
-            if (!$activeNotification->version || $activeNotification->version === $clientVersion) {
-                $notificationData = [
-                    'id' => $activeNotification->id,
-                    'title' => $activeNotification->title,
-                    'message' => $activeNotification->message,
-                    'url' => $activeNotification->url,
-                    'created_at' => $activeNotification->created_at
-                ];
-            }
-        }
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Başlıq</label>
+                        <input type="text" name="title" required placeholder="Məs: Sistem Baxışı" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-orange-500 focus:border-orange-500 outline-none transition-all">
+                    </div>
 
-        // 3. Son Versiyanı Tap
-        $latestUpdate = Update::where('is_active', true)
-                              ->orderBy('created_at', 'desc')
-                              ->first();
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Mesaj</label>
+                        <textarea name="message" rows="4" placeholder="Bildiriş mətni..." class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-orange-500 outline-none transition-all text-sm"></textarea>
+                    </div>
 
-        // 4. Versiya Müqayisəsi (Update varmı?)
-        if ($latestUpdate && version_compare($clientVersion, $latestUpdate->version, '<')) {
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Yönləndirmə Linki (Opsional)</label>
+                        <input type="url" name="url" placeholder="https://..." class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-orange-500 outline-none text-blue-600">
+                    </div>
 
-            // Yükləmə linki məntiqi: Əvvəlcə Update paketi, yoxdursa Full paket
-            $downloadUrl = null;
-            if ($latestUpdate->allow_download) {
-                if ($latestUpdate->has_update_file) {
-                    $downloadUrl = asset('uploads/updates/'.$latestUpdate->update_file_path);
-                } elseif ($latestUpdate->has_full_file) {
-                    $downloadUrl = asset('uploads/updates/'.$latestUpdate->full_file_path);
-                }
-            }
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">Versiya (Opsional)</label>
+                        <input type="text" name="version" placeholder="Məs: v1.0.2" class="w-full px-3 py-2 rounded-lg border border-gray-300 focus:ring-orange-500 outline-none font-mono text-sm">
+                        <p class="text-[10px] text-gray-400 mt-1">Boş buraxsanız bütün versiyalara gedəcək.</p>
+                    </div>
 
-            return response()->json([
-                'update_available' => true,
-                'new_version' => $latestUpdate->version,
+                    <button type="submit" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2.5 rounded-lg font-medium transition-colors shadow-sm flex justify-center items-center">
+                        <i class="fa-solid fa-paper-plane mr-2"></i> Yayımla
+                    </button>
+                </form>
+            </div>
+        </div>
 
-                // Admin Paneldən gələn Xüsusi Bildiriş
-                'global_notification' => $notificationData,
+        <!-- SAĞ: TARİXÇƏ -->
+        <div class="lg:col-span-2">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="px-5 py-4 border-b border-gray-100 bg-gray-50">
+                    <h3 class="font-semibold text-gray-800">Son Göndərilənlər</h3>
+                </div>
+                <div class="divide-y divide-gray-100">
+                    @forelse($notifications as $note)
+                        <div class="p-4 hover:bg-gray-50 transition-colors">
+                            <div class="flex justify-between items-start mb-1">
+                                <h4 class="font-bold text-gray-800">{{ $note->title }}</h4>
+                                <span class="text-xs text-gray-400">{{ $note->created_at->diffForHumans() }}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">{{ $note->message }}</p>
+                            <div class="flex items-center gap-3">
+                                @if($note->url)
+                                    <a href="{{ $note->url }}" target="_blank" class="text-xs text-blue-600 hover:underline flex items-center">
+                                        <i class="fa-solid fa-link mr-1"></i> Linkə keç
+                                    </a>
+                                @endif
+                                @if($note->version)
+                                    <span class="text-[10px] bg-gray-100 px-2 py-0.5 rounded text-gray-500 font-mono">{{ $note->version }}</span>
+                                @else
+                                    <span class="text-[10px] bg-green-50 px-2 py-0.5 rounded text-green-600 border border-green-100">Hamı</span>
+                                @endif
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-8 text-center text-gray-400">
+                            <i class="fa-regular fa-bell-slash text-3xl mb-2 opacity-50 block"></i>
+                            Hələ heç bir bildiriş göndərilməyib.
+                        </div>
+                    @endforelse
+                </div>
 
-                // Update haqqında standart bildiriş
-                'notification' => [
-                    'message' => "Yeni versiya (" . $latestUpdate->version . ") mövcuddur!\n" . $latestUpdate->changelog
-                ],
+                <div class="px-5 py-3 border-t border-gray-100">
+                    {{ $notifications->links('pagination::tailwind') }}
+                </div>
+            </div>
+        </div>
 
-                'data' => [
-                    'version'       => $latestUpdate->version,
-                    'release_date'  => $latestUpdate->created_at->format('Y-m-d'),
-                    'download_url'  => $downloadUrl,
-                    'action_url'    => route('page', 'updates'),
-                    'title'         => 'Sistem Yeniləməsi',
-                    'notes'         => $latestUpdate->changelog,
-                ]
-            ]);
-        }
-
-        // 5. Update Yoxdur (Amma bildiriş varsa yenə də göndəririk)
-        return response()->json([
-            'update_available' => false,
-            'message'          => 'Siz ən son versiyanı istifadə edirsiniz.',
-            'global_notification' => $notificationData // YENİ
-        ]);
-    }
-
-    /**
-     * Plugin Versiyasını Yoxla
-     * Endpoint: POST /api/v1/check-plugin
-     */
-    public function checkPlugin(Request $request)
-    {
-        $pluginName = $request->input('name'); // Məs: "WhatsApp Modulu"
-        $currentVersion = $request->input('version');
-        $apiKey = $request->input('api_key');
-
-        // API Key Yoxla
-        $settings = SiteSetting::first();
-        $systemApiKey = $settings->api_key ?? 'rj_live_982348729384729384';
-
-        if($apiKey !== $systemApiKey) {
-            return response()->json(['error' => 'Invalid API Key'], 403);
-        }
-
-        // Plugini bazadan tap
-        $plugin = Plugin::where('name', $pluginName)->first();
-
-        if ($plugin && version_compare($currentVersion, $plugin->version, '<')) {
-            return response()->json([
-                'update_available' => true,
-                'new_version' => $plugin->version,
-                'download_url' => asset('uploads/plugins/'.$plugin->file_path),
-                'is_free' => $plugin->is_free,
-                'price' => $plugin->price
-            ]);
-        }
-
-        return response()->json(['update_available' => false]);
-    }
-}
+    </div>
+</div>
+@endsection
