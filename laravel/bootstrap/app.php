@@ -7,6 +7,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
+        api: __DIR__.'/../routes/api.php', // <-- BU SƏTİR MÜTLƏQ OLMALIDIR!
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
@@ -15,10 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\LanguageManager::class,
         ]);
 
-        // Ödəniş sistemlərinin (Cryptomus) geri dönüş (callback) sorğuları üçün CSRF qorumasını söndürürük
+        // Ödəniş və API sorğuları üçün CSRF qorumasını söndürürük
         $middleware->validateCsrfTokens(except: [
-            'payment/callback',
-            'payment/webhook', // Ehtiyat üçün
+            'payment/*',
+            'api/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
