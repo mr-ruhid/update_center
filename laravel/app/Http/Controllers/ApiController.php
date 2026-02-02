@@ -3,38 +3,24 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Update;
+use App\Models\SiteSetting;
 
 class ApiController extends Controller
 {
     /**
      * Müştəri proqramı bu metoda sorğu göndərir.
-     * Göndərilən parametr: 'current_version' (Məs: 2.0)
      */
     public function checkUpdate(Request $request)
     {
         // 1. Müştəridən gələn məlumatlar
-        $clientVersion = $request->input('current_version'); // Müştərinin hazırki versiyası
+        // Müştəri kodunda 'version' göndərilir
+        $clientVersion = $request->input('version');
         $apiKey = $request->input('api_key');
+        $domain = $request->input('domain');
 
-        // 2. Bizim Baza/Sistemdəki Son Versiya (Bunu Admin Paneldən idarə edəcəyik)
-        // Hələlik statik yazırıq, gələcəkdə bazadan çəkəcəyik.
-        $latestVersion = "3.0.0";
-
-        // Admin paneldə yazdığınız başlıq və qeydlər
-        $releaseData = [
-            'version'       => $latestVersion,
-            'release_date'  => '2024-05-20',
-
-            // Diqqət: 'action_url' parametri istifadəçini sizin təyin etdiyiniz TAM URL-ə yönləndirəcək.
-            // Admin paneldə bura 'https://ruhidjavadov.site/app/rjpos/' və ya başqa bir link yazıla bilər.
-            'action_url'    => 'https://istenilen-sayt.com/update-page',
-
-            'title'         => 'Sistem Yeniləməsi', // Adminin yazdığı başlıq
-            'notes'         => 'Bu versiyada təhlükəsizlik boşluqları doldurulub və sürət artırılıb.', // Adminin qeydləri
-            'force_update'  => false // Məcburi yeniləmədirmi?
-        ];
-
-        // 3. Təhlükəsizlik Yoxlaması
+        // 2. API Key Yoxlanışı
+        // Sizin müştəri kodundakı statik açar
         if($apiKey !== 'rj_live_982348729384729384') {
             return response()->json([
                 'success' => false,
@@ -42,21 +28,49 @@ class ApiController extends Controller
             ], 403);
         }
 
+        // 3. Bazadan Son Versiyanı Tapırıq
+        // Yalnız aktiv olan ən son versiyanı götürürük
+        $latestUpdate = Update::where('is_active', true)
+                              ->orderBy('created_at', 'desc')
+                              ->first();
+
+        if (!$latestUpdate) {
+            return response()->json([
+                'update_available' => false,
+                'message' => 'Hələ heç bir versiya yoxdur.'
+            ]);
+        }
+
         // 4. MƏNTİQ: Versiya Müqayisəsi
-        // Əgər müştəri versiyası (v2) < son versiya (v3) isə -> Update Var
-        if (version_compare($clientVersion, $latestVersion, '<')) {
+        // Əgər müştəri versiyası serverdən kiçikdirsə (<), deməli update var.
+        if (version_compare($clientVersion, $latestUpdate->version, '<')) {
 
             return response()->json([
-                'update_available' => true,  // Bayraq: Update var!
-                'data'             => $releaseData // Müştərinin istifadə edəcəyi xam məlumatlar
+                'update_available' => true,
+                'new_version' => $latestUpdate->version,
+
+                // Müştəri tərəfindəki JS 'notification' obyektini gözləyir
+                'notification' => [
+                    'message' => "Yeni versiya (" . $latestUpdate->version . ") mövcuddur! \n\nYeniliklər:\n" . $latestUpdate->changelog
+                ],
+
+                // Əlavə məlumatlar (istərsə istifadə edə bilər)
+                'data' => [
+                    'version'       => $latestUpdate->version,
+                    'release_date'  => $latestUpdate->created_at->format('Y-m-d'),
+                    'download_url'  => $latestUpdate->has_update_file ? asset('uploads/updates/'.$latestUpdate->update_file_path) : null,
+                    'action_url'    => route('page', 'updates'), // Yeniliklər səhifəsinə yönləndirmə
+                    'title'         => 'Sistem Yeniləməsi',
+                    'notes'         => $latestUpdate->changelog,
+                ]
             ]);
 
         }
 
-        // 5. Əgər versiya eynidirsə və ya müştəri daha yenidirsə -> Update Yoxdur
+        // 5. Update Yoxdur
         else {
             return response()->json([
-                'update_available' => false, // Bayraq: Sakit dur
+                'update_available' => false,
                 'message'          => 'Siz ən son versiyanı istifadə edirsiniz.'
             ]);
         }
