@@ -5,21 +5,34 @@
 
     RewriteEngine On
 
-    # Handle Authorization Header
+    # Authorization Header-i emal et (API sorğuları üçün vacibdir)
     RewriteCond %{HTTP:Authorization} .
     RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
 
-    # Handle X-XSRF-Token Header
-    RewriteCond %{HTTP:x-xsrf-token} .
-    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
-
-    # Redirect Trailing Slashes If Not A Folder...
+    # Sondakı "/" işarəsini sil (qovluq deyilsə)
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
+    # Bütün sorğuları index.php-yə yönləndir
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
+</IfModule>
+
+# Böyük faylların yüklənməsi üçün limitləri artırırıq (100MB+ fayllar üçün)
+<IfModule mod_php7.c>
+   php_value upload_max_filesize 512M
+   php_value post_max_size 512M
+   php_value memory_limit 512M
+   php_value max_execution_time 300
+   php_value max_input_time 300
+</IfModule>
+
+<IfModule mod_php.c>
+   php_value upload_max_filesize 512M
+   php_value post_max_size 512M
+   php_value memory_limit 512M
+   php_value max_execution_time 300
+   php_value max_input_time 300
 </IfModule>
