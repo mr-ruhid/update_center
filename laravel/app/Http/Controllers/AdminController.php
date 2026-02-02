@@ -20,6 +20,7 @@ use App\Models\Sale;           // Satış modeli
 use Illuminate\Support\Facades\File; // Fayl əməliyyatları
 use Illuminate\Support\Facades\Hash; // Şifrə şifrələmə
 use Illuminate\Support\Facades\Auth; // İstifadəçi identifikasiyası
+use App\Models\Notification; //bildiris hissesi
 use Illuminate\Support\Str;
 
 class AdminController extends Controller
@@ -62,13 +63,31 @@ class AdminController extends Controller
     // 2. Bildirişlər
     public function notification()
     {
-        return view('admin.notification');
+        // Son göndərilən bildirişləri görmək üçün
+        $notifications = \App\Models\Notification::latest()->paginate(5);
+        return view('admin.notification', compact('notifications'));
     }
 
     public function storeNotification(Request $request)
     {
-        // Bildiriş göndərmə məntiqi (API/Firebase)
-        return redirect()->back()->with('success', 'Bildiriş uğurla göndərildi (Demo).');
+        // 1. Validasiya
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'nullable|string',
+            'url' => 'nullable|url',
+            'version' => 'nullable|string', // Boş buraxılsa hamıya gedəcək
+        ]);
+
+        // 2. Bazaya Yazmaq
+        \App\Models\Notification::create([
+            'title' => $request->title,
+            'message' => $request->message,
+            'url' => $request->url, // Target URL
+            'version' => $request->version,
+            'is_active' => true
+        ]);
+
+        return redirect()->back()->with('success', 'Bildiriş bazaya yazıldı və müştərilər üçün aktiv edildi.');
     }
 
     // 3. Abonələr
