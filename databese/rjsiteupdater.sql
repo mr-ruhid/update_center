@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 01, 2026 at 08:15 PM
+-- Generation Time: Feb 02, 2026 at 04:25 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `test1`
+-- Database: `rjupdater`
 --
 
 -- --------------------------------------------------------
@@ -244,7 +244,8 @@ INSERT INTO `migrations` (`id`, `migration`, `batch`) VALUES
 (25, '2026_02_01_151919_tr', 20),
 (26, '2026_02_01_155513_seed_translations_data', 21),
 (27, '2026_02_01_162200_dil_duzelis', 22),
-(29, '2026_02_01_162400_menu_tercume', 23);
+(29, '2026_02_01_162400_menu_tercume', 23),
+(30, '2026_02_02_151015_create_personal_access_tokens_table', 24);
 
 -- --------------------------------------------------------
 
@@ -313,6 +314,25 @@ INSERT INTO `payment_settings` (`id`, `currency`, `currency_symbol`, `stripe_pub
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `personal_access_tokens`
+--
+
+CREATE TABLE `personal_access_tokens` (
+  `id` bigint(20) UNSIGNED NOT NULL,
+  `tokenable_type` varchar(255) NOT NULL,
+  `tokenable_id` bigint(20) UNSIGNED NOT NULL,
+  `name` text NOT NULL,
+  `token` varchar(64) NOT NULL,
+  `abilities` text DEFAULT NULL,
+  `last_used_at` timestamp NULL DEFAULT NULL,
+  `expires_at` timestamp NULL DEFAULT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `plugins`
 --
 
@@ -371,6 +391,24 @@ CREATE TABLE `sales` (
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `sales`
+--
+
+INSERT INTO `sales` (`id`, `order_id`, `plugin_id`, `amount`, `currency`, `status`, `payment_method`, `customer_email`, `created_at`, `updated_at`) VALUES
+(1, '1769952909-1-983', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:35:09', '2026-02-01 09:35:09'),
+(2, '1769952915-1-667', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:35:15', '2026-02-01 09:35:15'),
+(3, '1769953206-1-526', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:40:06', '2026-02-01 09:40:06'),
+(4, '1769953210-1-922', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:40:10', '2026-02-01 09:40:10'),
+(5, '1769953212-1-699', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:40:12', '2026-02-01 09:40:12'),
+(6, '1769953216-1-793', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:40:16', '2026-02-01 09:40:16'),
+(7, '1769953243-1-828', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:40:43', '2026-02-01 09:40:43'),
+(8, '1769953356-1-102', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 09:42:36', '2026-02-01 09:42:36'),
+(9, '1769954769-1-427', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 10:06:09', '2026-02-01 10:06:09'),
+(10, '1769954804-1-846', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 10:06:44', '2026-02-01 10:06:44'),
+(11, '1769955443-1-879', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 10:17:23', '2026-02-01 10:17:23'),
+(12, '1769960358-1-601', 1, 0.20, 'USD', 'pending', 'cryptomus', NULL, '2026-02-01 11:39:18', '2026-02-01 11:39:18');
+
 -- --------------------------------------------------------
 
 --
@@ -392,7 +430,8 @@ CREATE TABLE `sessions` (
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
 ('C4sGOGgSfuo2JH8XqBbGmtuiClAsnApDZE0Wo6CC', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'YTo1OntzOjY6Il90b2tlbiI7czo0MDoiSnpxU1NudEo4WVJjRDMyUHRrVjZRVkp1U05WZW5RYTZ1cEVUeEdOaSI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7czo1OiJyb3V0ZSI7czo0OiJob21lIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjY6ImxvY2FsZSI7czoyOiJheiI7fQ==', 1769964845),
-('p0QBGs5poBfWRaQtkPFyTAfwvN4raQV1hqFwFWah', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiSkcxY0FnaGJrOW00cjVJVXRDWG02UzBVbDY3NVZmTmdGSmhydFJ5SiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hYm91dCI7czo1OiJyb3V0ZSI7czo0OiJwYWdlIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1769959265);
+('p0QBGs5poBfWRaQtkPFyTAfwvN4raQV1hqFwFWah', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiSkcxY0FnaGJrOW00cjVJVXRDWG02UzBVbDY3NVZmTmdGSmhydFJ5SiI7czo5OiJfcHJldmlvdXMiO2E6Mjp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hYm91dCI7czo1OiJyb3V0ZSI7czo0OiJwYWdlIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1769959265),
+('U40TABHzBrn1FvG8CW6hkvP09OLkojKn9Aasbr4p', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiNUc0aElVQlRaam84ejF4Mk5sUUtnNjVqVThkdnphbXlOWEpSU2xjbyI7czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MTtzOjk6Il9wcmV2aW91cyI7YToyOntzOjM6InVybCI7czozNzoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2FkbWluL2Rhc2hib2FyZCI7czo1OiJyb3V0ZSI7czoxNToiYWRtaW4uZGFzaGJvYXJkIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319fQ==', 1770045799);
 
 -- --------------------------------------------------------
 
@@ -418,7 +457,7 @@ CREATE TABLE `site_settings` (
 --
 
 INSERT INTO `site_settings` (`id`, `site_name`, `logo`, `favicon`, `enable_2fa`, `seo_title`, `seo_description`, `seo_keywords`, `created_at`, `updated_at`) VALUES
-(1, 'RJ Pos Updater', 'logo_1769945714.png', 'favicon_1769945714.png', 0, 'RJ POS system updater', 'Burada RJ POS sistemi üçün yeniləmələri görə və yükləyə bilərsiniz. Hazırda sistem pulsuzdur və yeniliklərə görə bir şey tələb olunmur.', 'update,updater,rj pos,ruhid cavadov, ruhid javadoff, ruhid javadov', '2026-02-01 05:09:55', '2026-02-01 07:35:14');
+(1, 'RJ Pos Updater', 'logo_1769945714.png', 'favicon_1769945714.png', 1, 'RJ POS system updater', 'Burada RJ POS sistemi üçün yeniləmələri görə və yükləyə bilərsiniz. Hazırda sistem pulsuzdur və yeniliklərə görə bir şey tələb olunmur.', 'update,updater,rj pos,ruhid cavadov, ruhid javadoff, ruhid javadov', '2026-02-01 05:09:55', '2026-02-01 07:35:14');
 
 -- --------------------------------------------------------
 
@@ -439,6 +478,13 @@ CREATE TABLE `smtp_settings` (
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Dumping data for table `smtp_settings`
+--
+
+INSERT INTO `smtp_settings` (`id`, `mail_mailer`, `mail_host`, `mail_port`, `mail_username`, `mail_password`, `mail_encryption`, `mail_from_address`, `mail_from_name`, `created_at`, `updated_at`) VALUES
+(1, 'smtp', 'smtp.hostinger.com', '465', 'elaqe@ruhidjavadov.site', '#RuhidNazile@19082021!', 'ssl', 'elaqe@ruhidjavadov.site', 'RJ Updater', '2026-02-01 05:03:53', '2026-02-01 06:41:23');
 
 -- --------------------------------------------------------
 
@@ -561,7 +607,8 @@ CREATE TABLE `updates` (
 --
 
 INSERT INTO `updates` (`id`, `version`, `changelog`, `is_active`, `allow_download`, `has_update_file`, `update_file_path`, `price_update`, `has_full_file`, `full_file_path`, `price_full`, `gallery_images`, `created_at`, `updated_at`) VALUES
-(2, 'Test', '-Pos ekranı\r\n-Məhsul siyahısı\r\n-Stok', 1, 0, 0, NULL, NULL, 1, 'full_RJPosv1_1769947409.zip', NULL, '[\"gal_697f41114eaec.png\"]', '2026-02-01 08:03:29', '2026-02-01 08:03:29');
+(2, 'RJ Pos v1', '-Pos ekranı\r\n-Məhsul siyahısı\r\n-Stok', 1, 0, 0, NULL, NULL, 1, 'full_RJPosv1_1769947409.zip', NULL, '[\"gal_697f41114eaec.png\"]', '2026-02-01 08:03:29', '2026-02-01 08:03:29'),
+(4, 'RJ Pos v2 Build 1.2', '- HTML sistem PHP Laravel/Bootstrap layihəyə dəyişdi\r\n- Ana səhifə artırıldı\r\n-Dashboard artırıldı\r\n-Kassa ekranı yeniləndi\r\n-Məhsul siyahısı səhifəsi yeniləndi\r\n-Kateqoriyalar bölməsi\r\n-Barkod çapı\r\nMağaza endirimi\r\nÜmumi stok\r\nAnbar stok\r\nMağaza stok\r\nStok transfer\r\nSatış tarixşəsi\r\nGeri qaytarma\r\nLotoreya\r\nPromokodlar\r\nPartnyorlar\r\nHesabatlar\r\nMağaza məlumatları\r\nKassalar\r\nRollar\r\nVergi\r\nÖdəniş növü\r\nQəbz şablomu\r\nApi tənzimləməsi\r\nBackup və restore bölməsi\r\nServer quraşdırması\r\nAdmin Hesabları\r\nKassa hesabları\r\nTelegram API artırıldı\r\nOrtaq paylaşım (server sync)\r\nGiriş ekranı', 1, 1, 0, NULL, NULL, 1, 'full_RJPosv2Build12_1769950419.rar', NULL, '[\"gal_697f4cd34e274.png\"]', '2026-02-01 08:53:39', '2026-02-01 08:53:39');
 
 -- --------------------------------------------------------
 
@@ -587,7 +634,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `email_verified_at`, `password`, `remember_token`, `created_at`, `updated_at`, `two_factor_code`, `two_factor_expires_at`) VALUES
-(1, 'Admin', 'admin@admin.com', '2026-02-01 03:15:14', '$2y$10$ZjjDp/FLqQ.Rvrqbhk/SP.OXAnTflMO0brJ6fvJsFkkCm5RAe9AbG', '0000', '2026-02-01 03:15:14', '2026-02-01 06:56:34', NULL, NULL);
+(1, 'Admin', 'ruhidjavadoff@gmail.com', '2026-02-01 03:15:14', '$2y$12$Ok6pxHeUGci0oOLaTmU5AehX64kRN99EduemJae.iQWRLdsjBP/nG', 'qYldtrYikSPGFo9yDlWnnmbBpxVNrxl4dLozSfNRtRgJCLMdatoEQqX9fhvG', '2026-02-01 03:15:14', '2026-02-01 06:56:34', NULL, NULL);
 
 --
 -- Indexes for dumped tables
@@ -676,6 +723,15 @@ ALTER TABLE `password_reset_tokens`
 --
 ALTER TABLE `payment_settings`
   ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `personal_access_tokens_token_unique` (`token`),
+  ADD KEY `personal_access_tokens_tokenable_type_tokenable_id_index` (`tokenable_type`,`tokenable_id`),
+  ADD KEY `personal_access_tokens_expires_at_index` (`expires_at`);
 
 --
 -- Indexes for table `plugins`
@@ -789,7 +845,7 @@ ALTER TABLE `menus`
 -- AUTO_INCREMENT for table `migrations`
 --
 ALTER TABLE `migrations`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `pages`
@@ -802,6 +858,12 @@ ALTER TABLE `pages`
 --
 ALTER TABLE `payment_settings`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `personal_access_tokens`
+--
+ALTER TABLE `personal_access_tokens`
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `plugins`
